@@ -59,4 +59,13 @@ python parser_sdata.py
 ````
 
 
+##Как использовать?
+
+Нужно создать excel файл с урлами начало поле B2 и заполняем ниже столбик: B3, B4, B5, ..., Bn.
+![Пример Excel](/img-readme/example-excel.png)
+
+Проблема решается, подробнее в [Смотреть issue](https://github.com/DaniilMelnikov/index-parser/issues/1)
+
+
+
 
