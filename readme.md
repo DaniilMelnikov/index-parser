@@ -45,6 +45,7 @@ pip install -r requirements.txt
 
 Смотрим версию Chrome браузера в справках
 ![Версия браузера](/img-readme/chrome-version.png)
+
 Качаем драйвер подходящая нашей версии
 [Скачать WebdriverChrome](https://chromedriver.chromium.org/downloads)
 
