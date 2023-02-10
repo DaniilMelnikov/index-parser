@@ -54,8 +54,10 @@ pip install -r requirements.txt
 
 11. В файле .env в директории проекта заполняем переменную SECRET_KEY ключом AntiCaptcha.
 
-
-
+12. Запускаем программу.
+````
+python parser_sdata.py
+````
 
 
 
