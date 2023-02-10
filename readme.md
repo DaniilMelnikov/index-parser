@@ -49,7 +49,7 @@ pip install -r requirements.txt
 Качаем драйвер подходящая нашей версии
 [Скачать WebdriverChrome](https://chromedriver.chromium.org/downloads)
 
-9. Извлекаем драйвер в новую папку ````chromedriver````.
+9. Извлекаем драйвер в папку ````chromedriver````.
 
 10. В файле .env в директории проекта заполняем переменную SECRET_KEY ключом AntiCaptcha.
 
