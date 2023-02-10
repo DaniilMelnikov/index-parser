@@ -1,8 +1,13 @@
 from bs4 import BeautifulSoup
-from selenium import webdriver
-import re
 
+from seleniumwire import webdriver
+
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.service import Service
+
+import re
 from datetime import datetime, date
+
 
 class GoogleBot():
 
@@ -21,7 +26,16 @@ class GoogleBot():
                 'ноя': ['11', 'Nov'],
                 'дек': ['12', 'Dec'],
                 }
-        self.browser = webdriver.Edge()
+
+        options = webdriver.ChromeOptions()
+        options.add_extension('anticaptcha-plugin_v0.63.zip')
+
+        self.capa = DesiredCapabilities.CHROME
+        self.capa["pageLoadStrategy"] = "eager"
+
+        service = Service(executable_path='chromedriver/chromedriver.exe')
+        self.browser = webdriver.Chrome(service=service, options=options, desired_capabilities=self.capa)
+
         self.dict_url = {}
         self.date_now = datetime.now()
 
@@ -31,6 +45,29 @@ class GoogleBot():
         """
         google_cache_url = f'http://webcache.googleusercontent.com/search?q=cache:{url}'
         self.browser.get(google_cache_url)
+        
+        captcha = False
+
+        for request in self.browser.requests:
+            if request.response:
+                if request.response.status_code == 404:
+                    self.dict_url[url] = {
+                        'time': 'Ошибка 404',
+                        'current': False,
+                    }
+                    self.browser.close()
+                    self.browser = webdriver.Chrome(desired_capabilities=self.capa)
+                    return False
+                if request.response.status_code == 429:
+                    soup = BeautifulSoup(self.browser.page_source, 'lxml')
+                    captcha = soup.find("form", {"id": "captcha-form"})
+
+        if captcha:
+
+            while captcha:
+                soup = BeautifulSoup(self.browser.page_source, 'lxml')
+                captcha = soup.find("form", {"id": "captcha-form"})
+
         return BeautifulSoup(self.browser.page_source, 'lxml')
 
     def collect_element(self, soup, url):
@@ -57,26 +94,23 @@ class GoogleBot():
         list_first_date = self.date_now.strftime('%Y %m %d').split(' ')
 
         if not current_month:
-            if list_first_date[1][0] == '0':
-                list_first_date[1] = list_first_date[1][1]
-            elif list_first_date[2][0] == '0':
-                list_first_date[2] = list_first_date[2][1]
             first_date = date(int(list_first_date[0]), int(list_first_date[1]), int(list_first_date[2]))
-            second_date = date(matches_list[2], browser_month_lsit[0], matches_list[0])
+            second_date = date(int(matches_list[2]), int(browser_month_lsit[0]), int(matches_list[0]))
             different_date = first_date - second_date
 
+            if different_date.days < 30:
+                current_month = True
 
         self.dict_url[url] = {
-                'time': '',
-                'current': True,
+                'time': matches[0],
+                'current': current_month,
         }
-        self.dict_url[url]['time'] = matches[0]
-        self.dict_url[url]['current'] = current_month
 
     def iter_urls(self):
         for url in self.url_list:
             soup = self.request_soup(url)
-            self.collect_element(soup, url)
+            if soup:
+                self.collect_element(soup, url)
 
         self.browser.close()
 

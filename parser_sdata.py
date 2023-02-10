@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets
 from google_bot import GoogleBot
-from ui_dialog import Ui_Dialog
 from ui_main import Ui_MainWindow
 import sys
 from PyQt5.QtWidgets import QFileDialog
@@ -9,7 +8,6 @@ from openpyxl.styles import PatternFill
 
 from yandex_bot import YandexBot
 
-'C:/Users/myelu/Desktop/text.xlsx'
 
 class main_window(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -27,7 +25,7 @@ class main_window(QtWidgets.QMainWindow, Ui_MainWindow):
         book = load_workbook(url_book)
         self.sheet_cache = book.active
         for row in range(self.sheet_cache.max_row):
-            self.url_listChache.append(self.sheet_cache[f'A{row+1}'].value)
+            self.url_listChache.append(self.sheet_cache[f'B{row+2}'].value)
 
         google_bot = GoogleBot(self.url_listChache)
         google_bot.iter_urls()
@@ -37,8 +35,8 @@ class main_window(QtWidgets.QMainWindow, Ui_MainWindow):
         yandex_bot.iter_urls()
         result_yandex = yandex_bot.get_dict_urls()
 
-        self.__fillResult(result_google, 'C')
-        self.__fillResult(result_yandex, 'D')
+        self.__fillResult(result_google, 'D')
+        self.__fillResult(result_yandex, 'E')
         
         book.save('test.xlsx')
 
