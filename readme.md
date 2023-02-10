@@ -49,13 +49,11 @@ pip install -r requirements.txt
 Качаем драйвер подходящая нашей версии
 [Скачать WebdriverChrome](https://chromedriver.chromium.org/downloads)
 
-9. Создаём новую папку с названием ````chromedriver```` в папке проекта.
+9. Извлекаем драйвер в новую папку ````chromedriver````.
 
-10. Извлекаем драйвер в новую папку ````chromedriver````.
+10. В файле .env в директории проекта заполняем переменную SECRET_KEY ключом AntiCaptcha.
 
-11. В файле .env в директории проекта заполняем переменную SECRET_KEY ключом AntiCaptcha.
-
-12. Запускаем программу.
+11. Запускаем программу.
 ````
 python parser_sdata.py
 ````
