@@ -69,4 +69,33 @@ python parser_sdata.py
 
 3. Программа сама всё сделает, лишь иногда нужно решать капчу.
 
+Можно написать файл test.py в корне проекта:
 
+````
+
+from models.url_model import UrlModel
+from bots.google_bot import GoogleBot
+from bots.yandex_bot import YandexBot
+
+#Поместите здесь свои urls для проверки
+urls= [
+
+
+]
+
+#Создаём бд
+url_bd = UrlModel('test', urls)
+
+#Создаём гугл бота
+google_bot = GoogleBot(url_bd)
+
+#Запускаем итерацию
+google_bot.iter_urls()
+
+#Создаём яндекс бота
+yandex_bot = YandexBot(url_bd)
+
+#Запускаем итерацию
+yandex_bot.iter_urls()
+
+````
