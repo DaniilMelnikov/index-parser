@@ -1,12 +1,12 @@
 from PyQt5 import QtWidgets
-from google_bot import GoogleBot
-from ui_main import Ui_MainWindow
+from bots.google_bot import GoogleBot
+from ui.ui_main import Ui_MainWindow
 import sys
 from PyQt5.QtWidgets import QFileDialog
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
-from yandex_bot import YandexBot
+from bots.yandex_bot import YandexBot
 
 
 class main_window(QtWidgets.QMainWindow, Ui_MainWindow):

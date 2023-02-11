@@ -1,47 +1,37 @@
+import sys
+import os
+sys.path.append(os.getcwd())
+
 from bs4 import BeautifulSoup
 
 from seleniumwire import webdriver
 
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
-from datetime import datetime, date
+from datetime import date
 import urllib.request
 import re
+from main_bot import MainBot
 
-from yandex_captcha import img_captcha
+from captcha.yandex_captcha import img_captcha
+from data.month_yandex import dict_month_yandex
+
+class YandexBot(MainBot):
+
+    def __init__(self, url_list, mode=False):
+        super().__init__(url_list)
+
+        self.browser = super().setup_browser()
+        self.date_now = super().setup_date_now()
 
 
-class YandexBot():
+        if mode:
+            self.dict_url = super().write_json('yandex')
+        else:
+            self.dict_url = {}
 
-    def __init__(self, url_list):
         self.cache_url = ''
-        self.url_list = url_list
-        self.dict_month = {'Jan': '01',
-                'Feb': '02',
-                'Mar': '03', 
-                'Apr': '04',
-                'May': '05',
-                'Jun': '06',
-                'Jul': '07',
-                'Aug': '08',
-                'Sep': '09',
-                'Oct': '10',
-                'Nov': '11',
-                'Dec': '12',
-                }
-
-
-        service = Service(executable_path='chromedriver/chromedriver.exe')
-
-        self.capa = DesiredCapabilities.CHROME
-        self.capa["pageLoadStrategy"] = "eager"
-
-        self.browser = webdriver.Chrome(service=service, desired_capabilities=self.capa)
-        self.dict_url = {}
-        self.date_now = datetime.now()
 
     def __request_soup(self, url, mode_url=True):
         if mode_url:
@@ -124,7 +114,7 @@ class YandexBot():
         matches_list = matches[0].split(' ')
         #Проверяем верный ли месяц
         browser_month = matches_list[1][0:3]
-        browser_month_list = self.dict_month[browser_month]
+        browser_month_list = dict_month_yandex[browser_month]
         now_month = self.date_now.strftime('%b')
         current_month = browser_month == now_month
 
@@ -144,18 +134,22 @@ class YandexBot():
 
         
     def iter_urls(self):
-        for url in self.url_list:
-            self.cache_url = url
-            soup_first = self.__request_soup(self.cache_url)
-            url = self.__collect_url_search(soup_first)
-            if url:
-                soup_second = self.__request_soup(url, False)
-            if soup_second:
-                self.__collect_element(soup_second)
+        try:
+            for url in self.url_list:
+                self.cache_url = url
+                soup_first = self.__request_soup(self.cache_url)
+                url = self.__collect_url_search(soup_first)
+                if url:
+                    soup_second = self.__request_soup(url, False)
+                if soup_second:
+                    self.__collect_element(soup_second)
+        except:
+            self.get_dict_urls()
 
 
 
         self.browser.close()
 
     def get_dict_urls(self):
+        super().save_json(self.dict_url, 'yandex')
         return self.dict_url
