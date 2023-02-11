@@ -7,6 +7,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
 from bots.yandex_bot import YandexBot
+from models.url_model import UrlModel
 
 
 class main_window(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -18,20 +19,22 @@ class main_window(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle('Приложение')
 
         self.sheet_cache = object()
-        self.url_listChache = []
 
     def startParser(self):
+        url_listChache = []
         url_book = self.file_url.text()
         book = load_workbook(url_book)
         self.sheet_cache = book.active
         for row in range(self.sheet_cache.max_row):
-            self.url_listChache.append(self.sheet_cache[f'B{row+2}'].value)
+            url_listChache.append(self.sheet_cache[f'B{row+2}'].value)
 
-        google_bot = GoogleBot(self.url_listChache)
+        url_bd = UrlModel('test', url_listChache)
+
+        google_bot = GoogleBot(url_bd)
         google_bot.iter_urls()
         result_google = google_bot.get_dict_urls()
 
-        yandex_bot = YandexBot(self.url_listChache)
+        yandex_bot = YandexBot(url_bd)
         yandex_bot.iter_urls()
         result_yandex = yandex_bot.get_dict_urls()
 

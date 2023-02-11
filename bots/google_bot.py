@@ -1,28 +1,21 @@
 from bs4 import BeautifulSoup
 
-from seleniumwire import webdriver
-
 import re
 from datetime import date
 
-from main_bot import MainBot
+from bots.main_bot import MainBot
 
-from data.month_google import dict_month_google
+from bots.data.month_google import dict_month_google
 
-
+# 'recaptcha-anchor'
 class GoogleBot(MainBot):
 
-    def __init__(self, url_list, mode=False):
-        super().__init__(url_list)
+    def __init__(self, bd):
+        super().__init__(bd)
 
         self.browser = super().setup_browser()
         self.date_now = super().setup_date_now()
-
-        
-        if mode:
-            self.dict_url = super().write_json('google')
-        else:
-            self.dict_url = {}
+        self.url_list = super().get_url()
 
         
     def __request_soup(self, url):
@@ -32,7 +25,8 @@ class GoogleBot(MainBot):
         google_cache_url = f'http://webcache.googleusercontent.com/search?q=cache:{url}'
         self.browser.get(google_cache_url)
 
-        self.__current_status(url)
+        if not self.__current_status(url):
+            return False
         
         return BeautifulSoup(self.browser.page_source, 'lxml')
 
@@ -46,13 +40,13 @@ class GoogleBot(MainBot):
         for request in self.browser.requests:
             if request.response:
                 if request.response.status_code == 404:
-                    self.dict_url[url] = {
-                        'time': 'Ошибка 404',
-                        'current': False,
-                    }
+                    super().update_result(url, 'data_google', 'Ошибка 404')
+                    super().update_result(url, 'current_google', False)
+
                     self.browser.close()
-                    self.browser = webdriver.Chrome(desired_capabilities=self.capa)
+                    self.browser = super().setup_browser()
                     return False
+
                 if request.response.status_code == 429:
                     soup = BeautifulSoup(self.browser.page_source, 'lxml')
                     captcha = soup.find("form", {"id": "captcha-form"})
@@ -61,6 +55,8 @@ class GoogleBot(MainBot):
             while captcha:
                 soup = BeautifulSoup(self.browser.page_source, 'lxml')
                 captcha = soup.find("form", {"id": "captcha-form"})
+        
+        return True
         
 
     def __collect_element(self, soup, url):
@@ -102,25 +98,19 @@ class GoogleBot(MainBot):
             if different_date.days < 30:
                 current_month = True
 
-        self.dict_url[url] = {
-                'time': matches[0],
-                'current': current_month,
-        }
-    
+        super().update_result(url, 'data_google', matches[0])
+        super().update_result(url, 'current_google', current_month)
+
 
     def iter_urls(self):
-        try:
+        try: 
             for url in self.url_list:
-                soup = self.__request_soup(url)
+                soup = self.__request_soup(url[0])
                 if soup:
-                    self.__collect_element(soup, url)
+                    self.__collect_element(soup, url[0])
         except:
-            self.get_dict_urls()
-            
+            print(super().get_all())
         
+        print(super().get_all())
         self.browser.close()
 
-
-    def get_dict_urls(self):
-        super().save_json(self.dict_url, 'google')
-        return self.dict_url
