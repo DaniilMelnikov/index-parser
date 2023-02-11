@@ -1,49 +1,29 @@
+
 import sqlite3
 
 
 class UrlModel():
 
-    def __init__(self, name_db, url_list):
-        self.url_list = url_list
-
+    def __init__(self, name_db):
         self.connect_sql = sqlite3.connect(f"./{name_db}.sqlite")
         self.cursor_sql = self.connect_sql.cursor()
 
         self.__first_add_in_db()
 
-
     def __first_add_in_db(self):
-            if self.__execute_query(
+            self.__execute_query(
                     """
                     CREATE TABLE url(
                         id INTEGER PRIMARY KEY,
                         url TEXT UNIQUE NOT NULL, 
-                        data_yandex TEXT, 
-                        current_yandex BOOLEAN NOT NULL,
                         data_google TEXT,
                         current_google BOOLEAN NOT NULL,
+                        data_yandex TEXT, 
+                        current_yandex BOOLEAN NOT NULL,
                         checked BOOLEAN NOT NULL
                     )
                     """
-                    ):
-                for url in self.url_list:
-                    self.__execute_query(
-                        f"""
-                        INSERT INTO url(
-                            url, 
-                            current_yandex, 
-                            current_google, 
-                            checked
-                            ) 
-
-                        VALUES (
-                            '{url}', 
-                            {False}, 
-                            {False}, 
-                            {False}
-                            )
-                        """
-                        )
+                    )
 
 
     def __execute_query(self, query):
@@ -65,6 +45,34 @@ class UrlModel():
             return result
         except sqlite3.Error as err:
             print(f"The error '{err}' occurred")
+    
+
+    def load_url(self, url):
+        self.__execute_query(
+            f"""
+            INSERT INTO url(
+                url, 
+                current_yandex, 
+                current_google, 
+                checked
+                ) 
+
+            VALUES (
+                '{url}', 
+                {False}, 
+                {False}, 
+                {False}
+                )
+            """
+            )
+
+
+    def select_result(self, bot_data, bot_current):
+        res = self.__execute_read_query(
+            f"""SELECT {bot_data}, {bot_current}
+            FROM url"""
+            )
+        return res
 
     
     def select_url(self):
@@ -96,8 +104,4 @@ class UrlModel():
             WHERE url = '{url}'
             """
             )
-
-
-    def delete_table(self):
-        pass
 

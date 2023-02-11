@@ -1,3 +1,4 @@
+
 from bs4 import BeautifulSoup
 
 import re
@@ -41,7 +42,7 @@ class GoogleBot(MainBot):
             if request.response:
                 if request.response.status_code == 404:
                     super().update_result(url, 'data_google', 'Ошибка 404')
-                    super().update_result(url, 'current_google', False)
+                    super().update_result(url, 'current_google', 0)
 
                     self.browser.close()
                     self.browser = super().setup_browser()
@@ -79,6 +80,10 @@ class GoogleBot(MainBot):
         browser_month = browser_month_lsit[1]
         now_month = self.date_now.strftime('%b')
         current_month = browser_month == now_month
+        if current_month:
+            current_month = 1
+        else:
+            current_month = 0
 
         list_first_date = self.date_now.strftime('%Y %m %d').split(' ')
 
@@ -96,7 +101,7 @@ class GoogleBot(MainBot):
             different_date = first_date - second_date
 
             if different_date.days < 30:
-                current_month = True
+                current_month = 1
 
         super().update_result(url, 'data_google', matches[0])
         super().update_result(url, 'current_google', current_month)

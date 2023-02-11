@@ -72,7 +72,6 @@ python parser_sdata.py
 Можно написать файл test.py в корне проекта:
 
 ````
-
 from models.url_model import UrlModel
 from bots.google_bot import GoogleBot
 from bots.yandex_bot import YandexBot
@@ -84,7 +83,10 @@ urls= [
 ]
 
 #Создаём бд
-url_bd = UrlModel('test', urls)
+url_bd = UrlModel('test')
+
+#Заполняем таблицу урлами
+url_bd.load_url(urls)
 
 #Создаём гугл бота
 google_bot = GoogleBot(url_bd)

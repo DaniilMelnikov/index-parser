@@ -1,4 +1,3 @@
-from typing import Any, Dict
 
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.service import Service
@@ -6,17 +5,11 @@ from seleniumwire import webdriver
 
 from datetime import datetime
 
-import json
-
-from models.url_model import UrlModel
-
-
 
 class MainBot():
-    
+
     def __init__(self, bd: object):
         self.bd = bd
-
         self.date_now = datetime.now()
 
 

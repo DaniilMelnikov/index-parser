@@ -1,3 +1,4 @@
+
 import sys
 import os
 sys.path.append(os.getcwd())
@@ -40,7 +41,7 @@ class YandexBot(MainBot):
             if request.response:
                 if request.response.status_code == 404:
                     super().update_result(url, 'data_yandex', 'Ошибка 404')
-                    super().update_result(url, 'current_yandex', False)
+                    super().update_result(url, 'current_yandex', 0)
 
                     self.browser.close()
                     self.browser = super().setup_browser()
@@ -104,7 +105,7 @@ class YandexBot(MainBot):
                     break
         else:
             super().update_result(self.cache_url, 'data_yandex', 'Нет элемента yandex-cache-hdr')
-            super().update_result(self.cache_url, 'current_yandex', False)
+            super().update_result(self.cache_url, 'current_yandex', 0)
 
         #выдёргиваем дату регулярным выражением и делим в список
         regex = r'\d+\s*\w+\s*\d+.+GMT*'
@@ -115,6 +116,10 @@ class YandexBot(MainBot):
         browser_month_list = dict_month_yandex[browser_month]
         now_month = self.date_now.strftime('%b')
         current_month = browser_month == now_month
+        if current_month:
+            current_month = 1
+        else:
+            current_month = 0
 
         list_first_date = self.date_now.strftime('%Y %m %d').split(' ')
         if not current_month:
@@ -131,7 +136,7 @@ class YandexBot(MainBot):
             different_date = first_date - second_date
 
             if different_date.days < 30:
-                current_month = True
+                current_month = 1
 
         super().update_result(self.cache_url, 'data_yandex', matches[0])
         super().update_result(self.cache_url, 'current_yandex', current_month)
